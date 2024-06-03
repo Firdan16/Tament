@@ -8,7 +8,7 @@ Table of Contents
 
 ## Introduction
 
-Command line interface app to manage investment portfolio
+Command line interface app for Task Management
 
 ## Requirement
 
@@ -19,5 +19,5 @@ C++ Compiler
 To run the project you need to execute the command below:
 
 ```bash
-make && ./inveshell
+make && ./tament
 ```
