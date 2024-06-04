@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <limits>
 
 using namespace std;
 
@@ -121,6 +122,30 @@ void displayTasks(const vector<Task *> &tasks)
     }
 }
 
+void displayTodoTasks(const vector<Task *> &tasks)
+{
+    cout << "\n";
+    cout << left << setw(5) << "No"
+         << left << setw(20) << "Nama"
+         << left << setw(30) << "Deskripsi"
+         << left << setw(15) << "Kategori" << endl;
+
+    cout << string(85, '=') << endl;
+
+    int index = 1;
+
+    for (const Task *task : tasks)
+    {
+        if(task->status==TODO){
+            cout << left << setw(5) << index
+                << left << setw(20) << task->nama
+                << left << setw(30) << task->deskripsi
+                << left << setw(15) << kategoriToString(task->kategori) << endl;
+            index++;
+        }
+    }
+}
+
 void displayTasksByCategory(const vector<Task *> &tasks, Kategori category)
 {
     vector<Task *> filteredTasks;
@@ -139,6 +164,45 @@ void displayAllTasks(const vector<Task *> &tasks)
     displayTasks(tasks);
 }
 
+int todoSize(const vector<Task *> &tasks)
+{
+    int index = 0;
+
+    for (const Task *task : tasks)
+    {
+        if(task->status==TODO){
+            index++;
+        }
+    }
+    return index;
+}
+
+void markAsDone(vector<Task *> &tasks)
+{
+    int todoTaskSize = todoSize(tasks);
+
+    if(todoTaskSize == 0){
+        cout << "Tidak ada Todo task saat ini";
+        return;
+    }
+
+    displayTodoTasks(tasks);
+    cout << "Pilih nomor task yang ingin ditandai sebagai selesai: ";
+    int nomorTask;
+    cin >> nomorTask;
+    cin.ignore();
+
+    if (nomorTask < 1 || nomorTask > todoTaskSize)
+    {
+        cout << "Nomor task tidak valid." << endl;
+        return;
+    }
+
+    tasks[nomorTask - 1]->status = DONE;
+    cout << "Task '" << tasks[nomorTask - 1]->nama << "' berhasil ditandai sebagai selesai." << endl;
+}
+
+
 int main()
 {
     vector<Task *> tasks;
@@ -149,7 +213,9 @@ int main()
         cout << "1. Tambah Task" << endl;
         cout << "2. Tampilkan Task Berdasarkan Kategori" << endl;
         cout << "3. Tampilkan Semua Task" << endl;
-        cout << "4. Keluar" << endl;
+        cout << "4. Tandai Task Selesai" << endl;
+        cout << "5. Tampilkan Todo Task" << endl;
+        cout << "6. Keluar" << endl;
         cout << "Pilih opsi: ";
 
         int opsi;
@@ -181,11 +247,23 @@ int main()
         }
         case 4:
         {
+            markAsDone(tasks);
+            break;
+        }
+        case 5:
+        {
+            displayTodoTasks(tasks);
+            break;
+        }
+        case 6:
+        {
             cout << "Keluar program." << endl;
             break;
         }
         default:
         {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cout << "Opsi tidak valid." << endl;
             break;
         }
