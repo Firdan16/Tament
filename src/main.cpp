@@ -202,6 +202,32 @@ void markAsDone(vector<Task *> &tasks)
     cout << "Task '" << tasks[nomorTask - 1]->nama << "' berhasil ditandai sebagai selesai." << endl;
 }
 
+void deleteTask(vector<Task *> &tasks)
+{
+    int deleteTask = todoSize(tasks);
+
+    if (deleteTask == 0){
+        cout << "Tidak ada task yang dapat dihapus" << endl;
+        return;
+    }
+
+    displayAllTasks(tasks);
+
+    cout << "Pilih nomor task yang ingin dihapus: ";
+    int nomorTask;
+    cin >> nomorTask;
+    cin.ignore();
+
+    if (nomorTask < 1 || nomorTask > deleteTask)
+    {
+        cout << "Nomor task tidak Seelsai" << endl;
+        return;
+    }
+
+    delete tasks[nomorTask - 1];
+    tasks.erase(tasks.begin() + (nomorTask - 1));
+    cout << "Task '" << tasks[nomorTask - 1]->nama << "' berhasil ditandai sebagai selesai" << endl;
+}
 
 int main()
 {
@@ -215,7 +241,8 @@ int main()
         cout << "3. Tampilkan Semua Task" << endl;
         cout << "4. Tandai Task Selesai" << endl;
         cout << "5. Tampilkan Todo Task" << endl;
-        cout << "6. Keluar" << endl;
+        cout << "6. Hapus Task" << endl;
+        cout << "7. Keluar" << endl;
         cout << "Pilih opsi: ";
 
         int opsi;
@@ -244,7 +271,7 @@ int main()
         {
             displayAllTasks(tasks);
             break;
-        }
+        }git
         case 4:
         {
             markAsDone(tasks);
@@ -257,14 +284,19 @@ int main()
         }
         case 6:
         {
-            cout << "Keluar program." << endl;
+            deleteTask(tasks);
             break;
+        }
+        case 7:
+        {
+            cout << "Keluar program" << endl;
+            exit;
         }
         default:
         {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Opsi tidak valid." << endl;
+            cout << "Opsi tidak valid" << endl;
             break;
         }
         }
