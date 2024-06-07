@@ -3,6 +3,7 @@
 #include <string>
 #include <iomanip>
 #include <limits>
+#include <cstdlib>
 
 using namespace std;
 
@@ -106,21 +107,25 @@ Task *createTask()
 void displayTasks(const vector<Task *> &tasks)
 {
     cout << "\n";
-    cout << left << setw(20) << "Nama"
+    cout << left << setw(5) << "No"
+         << left << setw(20) << "Nama"
          << left << setw(30) << "Deskripsi"
          << left << setw(10) << "Status"
          << left << setw(15) << "Kategori" << endl;
 
-    cout << string(75, '=') << endl;
+    cout << string(85, '=') << endl;
 
+    int index = 1;
     for (const Task *task : tasks)
     {
-        cout << left << setw(20) << task->nama
+        cout << left << setw(5) << index++
+             << left << setw(20) << task->nama
              << left << setw(30) << task->deskripsi
              << left << setw(10) << statusToString(task->status)
              << left << setw(15) << kategoriToString(task->kategori) << endl;
     }
 }
+
 
 void displayTodoTasks(const vector<Task *> &tasks)
 {
@@ -271,7 +276,7 @@ int main()
         {
             displayAllTasks(tasks);
             break;
-        }git
+        }
         case 4:
         {
             markAsDone(tasks);
@@ -290,7 +295,7 @@ int main()
         case 7:
         {
             cout << "Keluar program" << endl;
-            exit;
+            exit(EXIT_SUCCESS);
         }
         default:
         {
