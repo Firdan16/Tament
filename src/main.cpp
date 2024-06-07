@@ -4,7 +4,6 @@
 #include <iomanip>
 #include <limits>
 #include <cstdlib>
-#include <algorithm>
 
 using namespace std;
 
@@ -316,29 +315,33 @@ int main()
     return 0;
 }
 
-struct Task {
-    std::string name;
-    int priority;
+// Struktur Data untuk List Prioritas
+struct PriorityList {
+    std::string priority;
+    std::vector<std::string> tasks;
 };
 
-bool comparePriority(const Task &task1, const Task &task2) {
-    return task1.priority < task2.priority;
-}
+// Struktur Data untuk Kategori Tugas
+struct TaskCategory {
+    std::string category;
+    std::vector<std::string> tasks;
+};
+
+// Struktur Data untuk Tanggal Tugas
+struct TaskDate {
+    std::string date;
+    std::vector<std::string> tasks;
+};
 
 int main() {
-    std::vector<Task> taskList = {{"Tugas 1", 2}, {"Tugas 2", 1}, {"Tugas 3", 3}};
+    // Contoh penggunaan Struktur Data List Prioritas
+    PriorityList highPriority {"High", {"Task1", "Task2"}};
 
-    std::cout << "Sebelum diurutkan berdasarkan prioritas:" << std::endl;
-    for (const auto &task : taskList) {
-        std::cout << task.name << " - Prioritas: " << task.priority << std::endl;
-    }
+    // Contoh penggunaan Struktur Data Kategori Tugas
+    TaskCategory workCategory {"Work", {"TaskA", "TaskB"}};
 
-    std::sort(taskList.begin(), taskList.end(), comparePriority);
-
-    std::cout << "\nSetelah diurutkan berdasarkan prioritas:" << std::endl;
-    for (const auto &task : taskList) {
-        std::cout << task.name << " - Prioritas: " << task.priority << std::endl;
-    }
+    // Contoh penggunaan Struktur Data Tanggal Tugas
+    TaskDate todayTasks {"2022-12-31", {"TaskX", "TaskY"}};
 
     return 0;
 }
