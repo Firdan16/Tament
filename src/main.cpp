@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <limits>
 #include <cstdlib>
+#include <algorithm>
 
 using namespace std;
 
@@ -310,6 +311,33 @@ int main()
     for (Task *task : tasks)
     {
         delete task;
+    }
+
+    return 0;
+}
+
+struct Task {
+    std::string name;
+    int priority;
+};
+
+bool comparePriority(const Task &task1, const Task &task2) {
+    return task1.priority < task2.priority;
+}
+
+int main() {
+    std::vector<Task> taskList = {{"Tugas 1", 2}, {"Tugas 2", 1}, {"Tugas 3", 3}};
+
+    std::cout << "Sebelum diurutkan berdasarkan prioritas:" << std::endl;
+    for (const auto &task : taskList) {
+        std::cout << task.name << " - Prioritas: " << task.priority << std::endl;
+    }
+
+    std::sort(taskList.begin(), taskList.end(), comparePriority);
+
+    std::cout << "\nSetelah diurutkan berdasarkan prioritas:" << std::endl;
+    for (const auto &task : taskList) {
+        std::cout << task.name << " - Prioritas: " << task.priority << std::endl;
     }
 
     return 0;
