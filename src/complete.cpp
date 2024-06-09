@@ -215,6 +215,35 @@ void displayAllTasks(const vector<Task *> &tasks)
     displayTasks(tasks);
 }
 
+void displayTasksByStatus(const vector<Task *> &tasks)
+{
+    if(tasks.empty()){
+        cout << "Belum ada task saat ini" << endl;
+        return;
+    }
+
+    cout << "\n";
+    cout << left << setw(5) << "No"
+        << left << setw(20) << "Nama"
+        << left << setw(30) << "Deskripsi"
+        << left << setw(10) << "Status"
+        << left << setw(15) << "Kategori"
+        << left << setw(15) << "Tanggal"
+        << left << setw(20) << "Dependencies" << endl;
+    cout << string(105, '=') << endl;
+
+    int index = 1;
+    for (const Task *task : tasks)
+    {
+        cout << left << setw(5) << index++
+             << left << setw(20) << task->nama
+             << left << setw(30) << task->deskripsi
+             << left << setw(10) << statusToString(task->status)
+             << left << setw(15) << kategoriToString(task->kategori)
+             << left << setw(15) << task->tanggal;
+    }
+}
+
 vector<Task *> createDependency(const vector<Task *> &tasksList)
 {
     vector<Task *> dependencies;
@@ -339,46 +368,13 @@ void displayTasksByCategory(const vector<Task *> &tasks)
     displayTasks(filteredTasks);
 }
 
-void displayTodoTasks(const vector<Task *> &tasks)
-{
-    if(tasks.empty()){
-        cout << "Belum ada task saat ini" << endl;
-        return;
-    }
-    cout << "\n";
-    cout << left << setw(5) << "No"
-         << left << setw(20) << "Nama"
-         << left << setw(30) << "Deskripsi"
-         << left << setw(15) << "Kategori"
-         << left << setw(15) << "Tanggal"
-         << endl;
-
-    cout << string(85, '=') << endl;
-
-    int index = 1;
-
-    for (const Task *task : tasks)
-    {
-        if (task->status == TODO)
-        {
-            cout << left << setw(5) << index
-                 << left << setw(20) << task->nama
-                 << left << setw(30) << task->deskripsi
-                 << left << setw(15) << kategoriToString(task->kategori)
-                 << left << setw(15) << task->tanggal
-                 << endl;
-            index++;
-        }
-    }
-}
-
 void addSubtask(vector<Task *> &tasks)
 {
     if(tasks.empty()){
         cout << "Belum ada task saat ini" << endl;
         return;
     }
-    displayAllTasks(tasks);
+    displayMainTasks(tasks);
 
     cout << "Pilih nomor task yang ingin ditambahkan subtask: ";
     int nomorTask;
@@ -402,12 +398,12 @@ void addSubtask(vector<Task *> &tasks)
     cout << "Subtask berhasil ditambahkan ke task '" << task->nama << "'." << endl;
 }
 
-void markSubtasksAsDone(Task *task) {
+void markAllSubtaskDone(Task *task) {
     task->status = DONE;
 
     // Set semua subtasknya ke done
     for (Task *subtask : task->subtasks) {
-        markSubtasksAsDone(subtask);
+        markAllSubtaskDone(subtask);
     }
 }
 
@@ -417,7 +413,7 @@ void markFirstQueueAsDone(vector<Task *> &TodoTasks, vector<Task *> &completedTa
         return;
     }
     Task *task = TodoTasks.front(); 
-    markSubtasksAsDone(task);
+    markAllSubtaskDone(task);
     TodoTasks.erase(TodoTasks.begin());
 
     completedTasks.push_back(task);
@@ -456,13 +452,14 @@ void markAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks) {
         return;
     }
 
-    markSubtasksAsDone(task);
+    markAllSubtaskDone(task);
 
     tasks.erase(tasks.begin() + (taskNumber - 1));
     completedTasks.push_back(task);
 
     cout << "Task dan subtasks berhasil ditandai sebagai selesai." << endl;
 }
+
 
 void deleteTask(vector<Task *> &tasks)
 {
@@ -548,6 +545,61 @@ void displaySubtasks(Task *task, int level = 0) {
     cout << "Subtasks dari task '" << task->nama << "':" << endl;
     for (size_t i = 0; i < task->subtasks.size(); ++i) {
         cout << i + 1 << ". " << task->subtasks[i]->nama << endl;
+    }
+}
+
+void markSubtaskAsDone(vector<Task *> &tasks) {
+    if(tasks.empty()){
+        cout << "Belum ada task saat ini" << endl;
+        return;
+    }
+    
+    displayMainTasks(tasks);
+    
+    cout << "Pilih nomor task yang memiliki subtask yang ingin ditandai selesai: ";
+    int taskNumber;
+    cin >> taskNumber;
+    cin.ignore();
+
+    if (taskNumber < 1 || taskNumber > tasks.size()) {
+        handleInvalidInput();
+        return;
+    }
+
+    Task *task = tasks[taskNumber - 1];
+    
+    if (task->subtasks.empty()) {
+        cout << "Task ini tidak memiliki subtask." << endl;
+        return;
+    }
+    
+    displaySubtasks(task);
+    
+    cout << "Pilih nomor subtask yang ingin ditandai selesai: ";
+    int subtaskNumber;
+    cin >> subtaskNumber;
+    cin.ignore();
+
+    if (subtaskNumber < 1 || subtaskNumber > task->subtasks.size()) {
+        handleInvalidInput();
+        return;
+    }
+
+    Task *subtask = task->subtasks[subtaskNumber - 1];
+    subtask->status = DONE;
+    cout << "Subtask '" << subtask->nama << "' berhasil ditandai sebagai selesai." << endl;
+
+    bool allSubtasksDone = true;
+    for (Task *sub : task->subtasks) {
+        if (sub->status != DONE) {
+            allSubtasksDone = false;
+            break;
+        }
+    }
+
+    if (allSubtasksDone) {
+        task->status = DONE;
+        cout << "Semua subtask dari task '" << task->nama << "' telah selesai. Task ini juga ditandai sebagai selesai." << endl;
     }
 }
 
@@ -643,10 +695,11 @@ int main()
                     cout << "1. Tampilkan Semua Task" << endl;
                     cout << "2. Tampilkan Task Berdasarkan Kategori" << endl;
                     cout << "3. Tampilkan Todo Task" << endl;
+                    cout << "4. Tampilkan Semua Task Selesai" << endl;
                     cout << "Pilih opsi: ";
                     cin >> opsi;
                     cin.ignore();
-                    if(cin.fail() || opsi < 0 || opsi > 3){
+                    if(cin.fail() || opsi < 0 || opsi > 4){
                         handleInvalidInput();
                     }
                     else{
@@ -660,7 +713,10 @@ int main()
                     displayTasksByCategory(concatenateTaskLists(TodoTasks, CompletedTasks));
                 }
                 else if(opsi == 3){
-                    displayTodoTasks(TodoTasks);
+                    displayTasksByStatus(TodoTasks);
+                }
+                else if(opsi == 4){
+                    displayTasksByStatus(CompletedTasks);
                 }
                 break;
             case 3:
@@ -669,6 +725,7 @@ int main()
                     cout << "\n========  MENU Selesaikan TASK  ========\n";        
                     cout << "1. Tandai Selesai Task Pertama di Queue" << endl;
                     cout << "2. Tandai Task selesai" << endl;
+                    cout << "3. Tandai Subtask selesai" << endl;
                     cout << "Pilih opsi: ";
                     cin >> opsi;
                     cin.ignore();
@@ -684,6 +741,9 @@ int main()
                 }
                 else if(opsi == 2){
                     markAsDone(TodoTasks, CompletedTasks);
+                }
+                else if(opsi == 3){
+                    markSubtaskAsDone(TodoTasks);
                 }
                 break;
             case 4:
