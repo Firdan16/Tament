@@ -625,8 +625,8 @@ void displaySubtasks(Task *task, int level = 0) {
 // Menetapkan status subtask tersebut sebagai DONE.
 // Memberikan konfirmasi bahwa subtask berhasil ditandai sebagai selesai.
 // Memeriksa apakah semua subtask dari task telah selesai. Jika ya, menetapkan status task tersebut sebagai DONE dan memberikan konfirmasi bahwa task juga ditandai sebagai selesai.
-void markSubtaskAsDone(vector<Task *> &tasks) {
-    if(tasks.empty()){
+void markSubtaskAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks) {
+    if (tasks.empty()) {
         cout << "Belum ada task saat ini" << endl;
         return;
     }
@@ -677,8 +677,13 @@ void markSubtaskAsDone(vector<Task *> &tasks) {
     if (allSubtasksDone) {
         task->status = DONE;
         cout << "Semua subtask dari task '" << task->nama << "' telah selesai. Task ini juga ditandai sebagai selesai." << endl;
+
+        // Pindahkan task dari todoTasks ke completedTasks
+        tasks.erase(tasks.begin() + (taskNumber - 1));
+        completedTasks.push_back(task);
     }
 }
+
 
 
 
@@ -844,7 +849,7 @@ int main()
                     markAsDone(TodoTasks, CompletedTasks);
                 }
                 else if(opsi == 3){
-                    markSubtaskAsDone(TodoTasks);
+                    markSubtaskAsDone(TodoTasks, CompletedTasks);
                 }
                 break;
             case 4:
