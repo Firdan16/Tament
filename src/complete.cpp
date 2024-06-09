@@ -677,6 +677,10 @@ void markSubtaskAsDone(vector<Task *> &tasks) {
 // Menghapus elemen dari vektor subtasks milik task menggunakan erase.
 // Memberikan konfirmasi bahwa subtask berhasil dihapus.
 void deleteSubtask(Task *task) {
+    if(task->subtasks.empty()){
+        cout << "Belum ada subtask saat ini" << endl;
+        return;
+    }
     displaySubtasks(task);
 
     cout << "Pilih nomor subtask yang ingin dihapus: ";
@@ -848,10 +852,16 @@ int main()
                     deleteLastTask(TodoTasks);
                 }
                 else if(opsi == 2){
-                    deleteTask(TodoTasks);
+                    vector<Task *> allTasks = concatenateTaskLists(TodoTasks, CompletedTasks);
+                    deleteTask(allTasks);
+                    TodoTasks = vector<Task *>(allTasks.begin(), allTasks.begin() + TodoTasks.size());
+                    CompletedTasks = vector<Task *>(allTasks.begin() + TodoTasks.size(), allTasks.end());
                 }
                 else if(opsi == 3){
-                    deleteSubtaskMenu(TodoTasks);
+                    vector<Task *> allTasks = concatenateTaskLists(TodoTasks, CompletedTasks);
+                    deleteSubtaskMenu(allTasks);
+                    TodoTasks = vector<Task *>(allTasks.begin(), allTasks.begin() + TodoTasks.size());
+                    CompletedTasks = vector<Task *>(allTasks.begin() + TodoTasks.size(), allTasks.end());
                 }
                 break;
             case 5:
