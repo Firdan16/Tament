@@ -385,6 +385,21 @@ void displayTasksByCategory(const vector<Task *> &tasks)
 }
 
 
+// Membuat vektor AllTasks untuk menyimpan hasil penggabungan.
+// Mengalokasikan memori yang cukup untuk AllTasks dengan menggunakan reserve untuk menghindari alokasi ulang.
+// Menyalin elemen-elemen dari TodoTasks ke AllTasks menggunakan insert.
+// Menyalin elemen-elemen dari CompletedTasks ke AllTasks menggunakan insert.
+// Mengembalikan AllTasks yang telah digabungkan.
+// karena di concatenate, jadi yang paling pertama selalu berstatus TODO dan yang belakang selalu berstatus DONE
+vector<Task *> concatenateTaskLists(const vector<Task *> &TodoTasks, const vector<Task *> &CompletedTasks) {
+    vector<Task *> AllTasks;
+    AllTasks.reserve(TodoTasks.size() + CompletedTasks.size());
+    AllTasks.insert(AllTasks.end(), TodoTasks.begin(), TodoTasks.end());
+    AllTasks.insert(AllTasks.end(), CompletedTasks.begin(), CompletedTasks.end());
+    return AllTasks;
+}
+
+
 
 // Memeriksa apakah vektor tasks kosong. Jika ya, mencetak pesan bahwa tidak ada task saat ini.
 // Menampilkan daftar task utama menggunakan fungsi displayMainTasks.
@@ -395,35 +410,36 @@ void displayTasksByCategory(const vector<Task *> &tasks)
 // Menetapkan kategori subtask sesuai dengan kategori task utama.
 // Menambahkan subtask baru ke dalam vektor subtasks dari task utama.
 // Memberikan konfirmasi bahwa subtask berhasil ditambahkan ke dalam task utama.
-void addSubtask(vector<Task *> &tasks)
-{
-    if(tasks.empty()){
+void addSubtask(vector<Task *> &todoTasks) {
+    if (todoTasks.empty()) {
         cout << "Belum ada task saat ini" << endl;
         return;
     }
-    displayMainTasks(tasks);
+    displayMainTasks(todoTasks);
 
     cout << "Pilih nomor task yang ingin ditambahkan subtask: ";
     int nomorTask;
     cin >> nomorTask;
     cin.ignore();
 
-    if (nomorTask < 1 || nomorTask > tasks.size())
-    {
+    if (nomorTask < 1 || nomorTask > todoTasks.size()) {
         handleInvalidInput();
         return;
     }
 
-    Task *task = tasks[nomorTask - 1];
+    Task *task = todoTasks[nomorTask - 1];
     Task *newSubtask = createSubtask();
 
     // Set kategori subtask sesuai dengan parent
     newSubtask->kategori = task->kategori;
 
-    task->subtasks.push_back(newSubtask);
+    // Tambahkan subtask ke task yang ada di todoTasks
+    todoTasks[nomorTask - 1]->subtasks.push_back(newSubtask);
 
     cout << "Subtask berhasil ditambahkan ke task '" << task->nama << "'." << endl;
 }
+
+
 
 
 // Menetapkan status task yang diberikan sebagai DONE.
@@ -487,7 +503,7 @@ void markAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks) {
         return;
     }
 
-    displayTasks(tasks);
+    displayMainTasks(tasks);
 
     cout << "Pilih nomor task yang ingin ditandai sebagai selesai: ";
     int taskNumber;
@@ -515,6 +531,10 @@ void markAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks) {
 
 
 
+
+
+
+
 // Memeriksa apakah vektor tasks kosong. Jika ya, mencetak pesan bahwa tidak ada task saat ini.
 // Menampilkan daftar task menggunakan fungsi displayTasks.
 // Meminta pengguna memilih nomor task yang ingin dihapus.
@@ -522,26 +542,33 @@ void markAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks) {
 // Menghapus task dari vektor tasks menggunakan delete untuk mencegah kebocoran memori.
 // Menghapus elemen dari vektor tasks menggunakan erase.
 // Memberikan konfirmasi bahwa task berhasil dihapus.
-void deleteTask(vector<Task *> &tasks)
-{
-    if(tasks.empty()){
+void deleteTask(vector<Task *> &todoTasks, vector<Task *> &completedTasks) {
+    vector<Task *> allTasks = concatenateTaskLists(todoTasks, completedTasks);
+
+    if (allTasks.empty()) {
         cout << "Belum ada task saat ini" << endl;
         return;
     }
-    displayTasks(tasks);
+    displayTasks(allTasks);
 
     cout << "Pilih nomor task yang ingin dihapus: ";
     int nomorTask;
     cin >> nomorTask;
 
-    if (cin.fail() || nomorTask < 1 || nomorTask > tasks.size())
-    {
+    if (cin.fail() || nomorTask < 1 || nomorTask > allTasks.size()) {
         handleInvalidInput();
         return;
     }
 
-    delete tasks[nomorTask - 1];
-    tasks.erase(tasks.begin() + (nomorTask - 1));
+    Task *taskToDelete = allTasks[nomorTask - 1];
+    delete taskToDelete;
+
+    // Hapus dari TodoTasks atau CompletedTasks
+    if (nomorTask <= todoTasks.size()) {
+        todoTasks.erase(todoTasks.begin() + (nomorTask - 1));
+    } else {
+        completedTasks.erase(completedTasks.begin() + (nomorTask - todoTasks.size() - 1));
+    }
 
     cout << "Task berhasil dihapus." << endl;
 }
@@ -563,21 +590,6 @@ void deleteLastTask(vector<Task *> &tasks)
     cout << "Task Terakhir berhasil dihapus." << endl;
 }
 
-
-
-// Membuat vektor AllTasks untuk menyimpan hasil penggabungan.
-// Mengalokasikan memori yang cukup untuk AllTasks dengan menggunakan reserve untuk menghindari alokasi ulang.
-// Menyalin elemen-elemen dari TodoTasks ke AllTasks menggunakan insert.
-// Menyalin elemen-elemen dari CompletedTasks ke AllTasks menggunakan insert.
-// Mengembalikan AllTasks yang telah digabungkan.
-// karena di concatenate, jadi yang paling pertama selalu berstatus TODO dan yang belakang selalu berstatus DONE
-vector<Task *> concatenateTaskLists(const vector<Task *> &TodoTasks, const vector<Task *> &CompletedTasks) {
-    vector<Task *> AllTasks;
-    AllTasks.reserve(TodoTasks.size() + CompletedTasks.size());
-    AllTasks.insert(AllTasks.end(), TodoTasks.begin(), TodoTasks.end());
-    AllTasks.insert(AllTasks.end(), CompletedTasks.begin(), CompletedTasks.end());
-    return AllTasks;
-}
 
 
 
@@ -677,10 +689,11 @@ void markSubtaskAsDone(vector<Task *> &tasks) {
 // Menghapus elemen dari vektor subtasks milik task menggunakan erase.
 // Memberikan konfirmasi bahwa subtask berhasil dihapus.
 void deleteSubtask(Task *task) {
-    if(task->subtasks.empty()){
-        cout << "Belum ada subtask saat ini" << endl;
+    if (task->subtasks.empty()) {
+        cout << "Tidak ada subtask untuk task ini." << endl;
         return;
     }
+
     displaySubtasks(task);
 
     cout << "Pilih nomor subtask yang ingin dihapus: ";
@@ -702,31 +715,34 @@ void deleteSubtask(Task *task) {
 
 
 
+
+
 // Memeriksa apakah vektor tasks kosong. Jika ya, mencetak pesan bahwa tidak ada task saat ini.
 // Menampilkan daftar task menggunakan fungsi displayMainTasks.
 // Meminta pengguna memilih nomor task yang ingin dihapus subtasknya.
 // Memeriksa apakah nomor task yang dimasukkan pengguna valid.
 // Mendapatkan pointer ke task yang dipilih.
 // Memanggil fungsi deleteSubtask untuk menghapus subtask dari task yang dipilih.
-void deleteSubtaskMenu(vector<Task *> &tasks) {
-    if(tasks.empty()){
+void deleteSubtaskMenu(vector<Task *> &todoTasks, vector<Task *> &completedTasks) {
+    vector<Task *> allTasks = concatenateTaskLists(todoTasks, completedTasks);
+
+    if (allTasks.empty()) {
         cout << "Belum ada task saat ini" << endl;
         return;
     }
-    displayMainTasks(tasks);
+    displayMainTasks(allTasks);
 
     cout << "Pilih nomor task yang ingin dihapus subtasknya: ";
     int nomorTask;
     cin >> nomorTask;
     cin.ignore();
 
-    if (nomorTask < 1 || nomorTask > tasks.size()) {
+    if (nomorTask < 1 || nomorTask > allTasks.size()) {
         handleInvalidInput();
         return;
     }
 
-    Task *task = tasks[nomorTask - 1];
-
+    Task *task = allTasks[nomorTask - 1];
     deleteSubtask(task);
 }
 
@@ -851,17 +867,11 @@ int main()
                 if(opsi == 1){
                     deleteLastTask(TodoTasks);
                 }
-                else if(opsi == 2){
-                    vector<Task *> allTasks = concatenateTaskLists(TodoTasks, CompletedTasks);
-                    deleteTask(allTasks);
-                    TodoTasks = vector<Task *>(allTasks.begin(), allTasks.begin() + TodoTasks.size());
-                    CompletedTasks = vector<Task *>(allTasks.begin() + TodoTasks.size(), allTasks.end());
+                else if (opsi == 2) {
+                    deleteTask(TodoTasks, CompletedTasks);
                 }
-                else if(opsi == 3){
-                    vector<Task *> allTasks = concatenateTaskLists(TodoTasks, CompletedTasks);
-                    deleteSubtaskMenu(allTasks);
-                    TodoTasks = vector<Task *>(allTasks.begin(), allTasks.begin() + TodoTasks.size());
-                    CompletedTasks = vector<Task *>(allTasks.begin() + TodoTasks.size(), allTasks.end());
+                else if (opsi == 3) {
+                    deleteSubtaskMenu(TodoTasks, CompletedTasks);
                 }
                 break;
             case 5:
