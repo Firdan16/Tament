@@ -597,19 +597,27 @@ void deleteLastTask(vector<Task *> &tasks)
 // Jika task memiliki subtask, mencetak judul "Subtasks dari task 'nama_task'".
 // Mengulangi langkah 4 untuk setiap subtask dalam vektor subtasks.
 // Mencetak nomor dan nama subtask.
-void displaySubtasks(Task *task, int level = 0) {
+void displaySubtasks(Task *task, vector<int> &todoSubtaskIndices, int level = 0) {
+    todoSubtaskIndices.clear();
+
     if (task->subtasks.empty()) {
         cout << "Tidak ada subtask untuk task ini." << endl;
         return;
     }
-
+    
     cout << "Todo Subtasks dari task '" << task->nama << "':" << endl;
     for (size_t i = 0; i < task->subtasks.size(); ++i) {
-        if(task->subtasks[i]->status == TODO){
-            cout << i + 1 << ". " << task->subtasks[i]->nama << endl;
+        if (task->subtasks[i]->status == TODO) {
+            cout << todoSubtaskIndices.size() + 1 << ". " << task->subtasks[i]->nama << endl;
+            todoSubtaskIndices.push_back(i);
         }
     }
+
+    if (todoSubtaskIndices.empty()) {
+        cout << "Tidak ada subtask yang belum selesai untuk task ini." << endl;
+    }
 }
+
 
 
 
@@ -651,20 +659,26 @@ void markSubtaskAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks) {
         cout << "Task ini tidak memiliki subtask." << endl;
         return;
     }
+
+    vector<int> todoSubtaskIndices;
+    displaySubtasks(task, todoSubtaskIndices);
     
-    displaySubtasks(task);
+    if (todoSubtaskIndices.empty()) {
+        return;
+    }
     
     cout << "Pilih nomor subtask yang ingin ditandai selesai: ";
     int subtaskNumber;
     cin >> subtaskNumber;
     cin.ignore();
 
-    if (subtaskNumber < 1 || subtaskNumber > task->subtasks.size()) {
+    if (subtaskNumber < 1 || subtaskNumber > todoSubtaskIndices.size()) {
         handleInvalidInput();
         return;
     }
 
-    Task *subtask = task->subtasks[subtaskNumber - 1];
+    int actualIndex = todoSubtaskIndices[subtaskNumber - 1];
+    Task *subtask = task->subtasks[actualIndex];
     subtask->status = DONE;
     cout << "Subtask '" << subtask->nama << "' berhasil ditandai sebagai selesai." << endl;
 
@@ -680,11 +694,11 @@ void markSubtaskAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks) {
         task->status = DONE;
         cout << "Semua subtask dari task '" << task->nama << "' telah selesai. Task ini juga ditandai sebagai selesai." << endl;
 
-        // Pindahkan task dari todoTasks ke completedTasks
         tasks.erase(tasks.begin() + (taskNumber - 1));
         completedTasks.push_back(task);
     }
 }
+
 
 
 
@@ -696,29 +710,31 @@ void markSubtaskAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks) {
 // Menghapus elemen dari vektor subtasks milik task menggunakan erase.
 // Memberikan konfirmasi bahwa subtask berhasil dihapus.
 void deleteSubtask(Task *task) {
-    if (task->subtasks.empty()) {
-        cout << "Tidak ada subtask untuk task ini." << endl;
+    vector<int> todoSubtaskIndices;
+    displaySubtasks(task, todoSubtaskIndices);
+
+    if (todoSubtaskIndices.empty()) {
         return;
     }
-
-    displaySubtasks(task);
 
     cout << "Pilih nomor subtask yang ingin dihapus: ";
     int nomorSubtask;
     cin >> nomorSubtask;
     cin.ignore();
 
-    if (nomorSubtask < 1 || nomorSubtask > task->subtasks.size()) {
+    if (nomorSubtask < 1 || nomorSubtask > todoSubtaskIndices.size()) {
         handleInvalidInput();
         return;
     }
 
-    Task *subtaskToDelete = task->subtasks[nomorSubtask - 1];
+    int actualIndex = todoSubtaskIndices[nomorSubtask - 1];
+    Task *subtaskToDelete = task->subtasks[actualIndex];
     delete subtaskToDelete;
-    task->subtasks.erase(task->subtasks.begin() + (nomorSubtask - 1));
+    task->subtasks.erase(task->subtasks.begin() + actualIndex);
 
     cout << "Subtask berhasil dihapus." << endl;
 }
+
 
 
 
