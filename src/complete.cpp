@@ -51,12 +51,14 @@ struct Task
 vector<Task *> TodoTasks;
 vector<Task *> CompletedTasks;
 
+// Menangani input yang tidak valid dengan membersihkan buffer input dan menampilkan pesan kesalahan.
 void handleInvalidInput(){
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cout << "\x1b[31mInvalid Input\x1b[0m" << endl;
 }
 
+// Mengonversi nilai enumerasi Status menjadi string yang sesuai (TODO atau DONE).
 string statusToString(Status s)
 {
     switch (s)
@@ -70,6 +72,7 @@ string statusToString(Status s)
     }
 }
 
+// Mengonversi nilai enumerasi Kategori menjadi string yang sesuai (WORK, PERSONAL, atau OTHER).
 string kategoriToString(Kategori k)
 {
     switch (k)
@@ -85,6 +88,7 @@ string kategoriToString(Kategori k)
     }
 }
 
+// Mengembalikan string yang berisi tanggal hari ini dalam format "YYYY-MM-DD".
 string getTanggalHariIni()
 {
     time_t t = time(0);
@@ -94,6 +98,7 @@ string getTanggalHariIni()
     return string(buffer);
 }
 
+// Meminta pengguna untuk memilih kategori (WORK, PERSONAL, atau OTHER) dan mengembalikan nilai enumerasi Kategori yang sesuai.
 Kategori inputKategori()
 {
     while (true)
@@ -116,8 +121,7 @@ Kategori inputKategori()
     }
 }
 
-
-
+// Memeriksa apakah sebuah string mengandung setidaknya satu huruf alfabet.
 bool containsLetters(const string &str)
 {
     for (char c : str)
@@ -130,6 +134,13 @@ bool containsLetters(const string &str)
     return false;
 }
 
+
+
+// Fungsi ini menerima vector dari tugas (tasks) dan tingkat indentasi (level) sebagai argumen.
+// Pertama, fungsi akan menampilkan informasi tentang tugas yang ada pada tingkat saat ini dengan menggunakan indentasi sesuai dengan levelnya (Kata yang menjorok).
+// Kemudian, fungsi akan memeriksa apakah tugas tersebut memiliki subtask atau tidak.
+// Jika memiliki subtask, fungsi akan memanggil dirinya sendiri (rekursi) untuk menampilkan subtask dengan tingkat indentasi yang lebih dalam (level + 1).
+// Proses ini akan terus berlanjut hingga semua subtask dari setiap tugas ditampilkan.
 void displayTasks(const vector<Task *> &tasks, int level=0)
 {
     string indent(level * 4, ' ');
@@ -172,6 +183,11 @@ void displayTasks(const vector<Task *> &tasks, int level=0)
     }
 }
 
+
+
+// Fungsi ini menerima vector dari tugas utama (tasks) sebagai argumen.
+// Pertama, fungsi akan menampilkan informasi tentang setiap tugas utama seperti nama, deskripsi, status, kategori, tanggal, dan dependensi.
+// Fungsi ini tidak menampilkan subtask dari setiap tugas utama, hanya informasi dasar tentang tugas utama itu sendiri.
 void displayMainTasks(const vector<Task *> &tasks)
 {
     if(tasks.empty()){
@@ -211,15 +227,15 @@ void displayMainTasks(const vector<Task *> &tasks)
     }
 }
 
-void displayAllTasks(const vector<Task *> &tasks)
-{
-    if(tasks.empty()){
-        cout << "Belum ada task saat ini" << endl;
-        return;
-    }
-    displayTasks(tasks);
-}
 
+
+// Fungsi menerima daftar tasksList.
+// Jika tasksList kosong, fungsi mengembalikan daftar dependency kosong.
+// Pengguna diminta untuk menentukan apakah task memiliki dependency.
+// Jika ya, fungsi menampilkan daftar task utama dan meminta pengguna memilih nomor task yang menjadi dependency.
+// Task yang dipilih ditambahkan ke daftar dependencies.
+// Daftar dependencies dikembalikan setelah pengguna selesai memilih atau memilih untuk tidak memiliki dependency.
+// Pesan kesalahan ditampilkan jika input tidak valid.
 vector<Task *> createDependency(const vector<Task *> &tasksList)
 {
     vector<Task *> dependencies;
@@ -280,6 +296,15 @@ vector<Task *> createDependency(const vector<Task *> &tasksList)
 }
 
 
+
+// Meminta pengguna memasukkan nama dan deskripsi task.
+// Mengambil tanggal hari ini sebagai tanggal task dibuat.
+// Menentukan status task sebagai TODO dan kategori task dengan memanggil fungsi inputKategori.
+// Membersihkan input buffer menggunakan cin.clear() dan cin.ignore() untuk menghindari masalah input.
+// Membuat objek Task baru dengan informasi yang dimasukkan pengguna.
+// Menentukan dependency task dengan memanggil fungsi createDependency untuk mendapatkan daftar dependency dari TodoTasks.
+// Menambahkan task baru ke dalam TodoTasks.
+// Mengembalikan pointer ke task yang baru dibuat.
 Task *createTask()
 {
     string nama, deskripsi, tanggal;
@@ -307,6 +332,12 @@ Task *createTask()
 }
 
 
+
+// Meminta pengguna memasukkan nama dan deskripsi untuk subtask.
+// Mengambil tanggal hari ini sebagai tanggal pembuatan subtask.
+// Menetapkan status subtask sebagai TODO dan kategori subtask sebagai WORK.
+// Membuat objek Task baru untuk subtask dengan informasi yang dimasukkan pengguna.
+// Mengembalikan pointer ke subtask yang baru dibuat.
 Task *createSubtask()
 {
     string nama, deskripsi, tanggal;
@@ -326,6 +357,15 @@ Task *createSubtask()
     return newTask;
 }
 
+
+
+// Memeriksa apakah vektor tasks kosong. Jika ya, mencetak pesan bahwa tidak ada task saat ini.
+// Meminta pengguna memilih kategori menggunakan fungsi inputKategori.
+// Membuat vektor filteredTasks untuk menyimpan task yang memiliki kategori yang sesuai.
+// Melakukan iterasi melalui setiap task dalam vektor tasks.
+// Memeriksa apakah kategori task sesuai dengan kategori yang dipilih pengguna.
+// Jika sesuai, menambahkan task tersebut ke dalam vektor filteredTasks.
+// Memanggil fungsi displayTasks untuk menampilkan daftar task yang telah difilter berdasarkan kategori yang dipilih.
 void displayTasksByCategory(const vector<Task *> &tasks)
 {
     if(tasks.empty()){
@@ -344,6 +384,17 @@ void displayTasksByCategory(const vector<Task *> &tasks)
     displayTasks(filteredTasks);
 }
 
+
+
+// Memeriksa apakah vektor tasks kosong. Jika ya, mencetak pesan bahwa tidak ada task saat ini.
+// Menampilkan daftar task utama menggunakan fungsi displayMainTasks.
+// Meminta pengguna memilih nomor task yang ingin ditambahkan subtask.
+// Memeriksa apakah nomor task yang dimasukkan pengguna valid.
+// Mengakses task yang dipilih menggunakan nomor task.
+// Membuat subtask baru dengan menggunakan fungsi createSubtask.
+// Menetapkan kategori subtask sesuai dengan kategori task utama.
+// Menambahkan subtask baru ke dalam vektor subtasks dari task utama.
+// Memberikan konfirmasi bahwa subtask berhasil ditambahkan ke dalam task utama.
 void addSubtask(vector<Task *> &tasks)
 {
     if(tasks.empty()){
@@ -374,6 +425,9 @@ void addSubtask(vector<Task *> &tasks)
     cout << "Subtask berhasil ditambahkan ke task '" << task->nama << "'." << endl;
 }
 
+
+// Menetapkan status task yang diberikan sebagai DONE.
+// Mengulangi langkah 1 untuk setiap subtask dalam vektor subtasks dari task tersebut.
 void markAllSubtaskDone(Task *task) {
     task->status = DONE;
 
@@ -383,6 +437,12 @@ void markAllSubtaskDone(Task *task) {
     }
 }
 
+
+// Memeriksa apakah vektor TodoTasks kosong. Jika ya, mencetak pesan bahwa tidak ada task saat ini.
+// Mengakses task pertama dalam vektor TodoTasks.
+// Menandai task tersebut dan semua subtasknya sebagai selesai menggunakan fungsi markAllSubtaskDone.
+// Menghapus task yang telah selesai dari vektor TodoTasks.
+// Menambahkan task yang selesai ke dalam vektor completedTasks.
 void markFirstQueueAsDone(vector<Task *> &TodoTasks, vector<Task *> &completedTasks) {
     if(TodoTasks.empty()){
         cout << "Belum ada task saat ini" << endl;
@@ -395,6 +455,10 @@ void markFirstQueueAsDone(vector<Task *> &TodoTasks, vector<Task *> &completedTa
     completedTasks.push_back(task);
 }
 
+
+// Memeriksa setiap dependensi dari task.
+// Jika ada dependensi yang belum selesai, mengembalikan false.
+// Jika semua dependensi sudah selesai, mengembalikan true.
 bool canBeMarkedAsDone(Task *task) {
     for (Task *dep : task->dependency) {
         if (dep->status != DONE) {
@@ -404,6 +468,19 @@ bool canBeMarkedAsDone(Task *task) {
     return true;
 }
 
+
+
+// Memeriksa apakah vektor tasks kosong. Jika ya, mencetak pesan bahwa tidak ada task yang tersedia untuk ditandai sebagai selesai.
+// Menampilkan daftar task menggunakan fungsi displayTasks.
+// Meminta pengguna memilih nomor task yang ingin ditandai sebagai selesai.
+// Memeriksa apakah nomor task yang dimasukkan pengguna valid.
+// Mengakses task yang dipilih menggunakan nomor task.
+// Memeriksa apakah task dapat ditandai sebagai selesai menggunakan fungsi canBeMarkedAsDone.
+// Jika task tidak dapat ditandai sebagai selesai, mencetak pesan yang sesuai.
+// Jika task dapat ditandai sebagai selesai, menandai task dan semua subtasknya sebagai selesai menggunakan markAllSubtaskDone.
+// Menghapus task yang telah ditandai sebagai selesai dari vektor tasks.
+// Menambahkan task yang selesai ke dalam vektor completedTasks.
+// Memberikan konfirmasi bahwa task dan subtasknya berhasil ditandai sebagai selesai.
 void markAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks) {
     if (tasks.empty()) {
         cout << "Tidak ada task yang tersedia untuk ditandai sebagai selesai." << endl;
@@ -437,13 +514,21 @@ void markAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks) {
 }
 
 
+
+// Memeriksa apakah vektor tasks kosong. Jika ya, mencetak pesan bahwa tidak ada task saat ini.
+// Menampilkan daftar task menggunakan fungsi displayTasks.
+// Meminta pengguna memilih nomor task yang ingin dihapus.
+// Memeriksa apakah nomor task yang dimasukkan pengguna valid.
+// Menghapus task dari vektor tasks menggunakan delete untuk mencegah kebocoran memori.
+// Menghapus elemen dari vektor tasks menggunakan erase.
+// Memberikan konfirmasi bahwa task berhasil dihapus.
 void deleteTask(vector<Task *> &tasks)
 {
     if(tasks.empty()){
         cout << "Belum ada task saat ini" << endl;
         return;
     }
-    displayAllTasks(tasks);
+    displayTasks(tasks);
 
     cout << "Pilih nomor task yang ingin dihapus: ";
     int nomorTask;
@@ -461,6 +546,10 @@ void deleteTask(vector<Task *> &tasks)
     cout << "Task berhasil dihapus." << endl;
 }
 
+
+// Memeriksa apakah vektor tasks kosong. Jika ya, mencetak pesan bahwa tidak ada task yang bisa dihapus.
+// Menghapus task terakhir dari vektor tasks menggunakan pop_back.
+// Memberikan konfirmasi bahwa task terakhir berhasil dihapus.
 void deleteLastTask(vector<Task *> &tasks)
 {
     if (tasks.empty())
@@ -474,36 +563,14 @@ void deleteLastTask(vector<Task *> &tasks)
     cout << "Task Terakhir berhasil dihapus." << endl;
 }
 
-void displayStack()
-{
-    if (TodoTasks.empty())
-    {
-        cout << "Stack kosong." << endl;
-        return;
-    }
 
-    cout << "\n========  STACK  ========\n";
-    cout << left << setw(5) << "No"
-         << left << setw(20) << "Nama"
-         << left << setw(30) << "Deskripsi"
-         << left << setw(10) << "Status"
-         << left << setw(15) << "Kategori"
-         << left << setw(15) << "Tanggal" << endl;
-    cout << string(85, '=') << endl;
 
-    int index = 1;
-    for (const Task *task : TodoTasks)
-    {
-        cout << left << setw(5) << index++
-             << left << setw(20) << task->nama
-             << left << setw(30) << task->deskripsi
-             << left << setw(10) << statusToString(task->status)
-             << left << setw(15) << kategoriToString(task->kategori)
-             << left << setw(15) << task->tanggal
-             << endl;
-    }
-}
-
+// Membuat vektor AllTasks untuk menyimpan hasil penggabungan.
+// Mengalokasikan memori yang cukup untuk AllTasks dengan menggunakan reserve untuk menghindari alokasi ulang.
+// Menyalin elemen-elemen dari TodoTasks ke AllTasks menggunakan insert.
+// Menyalin elemen-elemen dari CompletedTasks ke AllTasks menggunakan insert.
+// Mengembalikan AllTasks yang telah digabungkan.
+// karena di concatenate, jadi yang paling pertama selalu berstatus TODO dan yang belakang selalu berstatus DONE
 vector<Task *> concatenateTaskLists(const vector<Task *> &TodoTasks, const vector<Task *> &CompletedTasks) {
     vector<Task *> AllTasks;
     AllTasks.reserve(TodoTasks.size() + CompletedTasks.size());
@@ -512,6 +579,12 @@ vector<Task *> concatenateTaskLists(const vector<Task *> &TodoTasks, const vecto
     return AllTasks;
 }
 
+
+
+// Memeriksa apakah task memiliki subtask. Jika tidak, mencetak pesan bahwa tidak ada subtask untuk task tersebut.
+// Jika task memiliki subtask, mencetak judul "Subtasks dari task 'nama_task'".
+// Mengulangi langkah 4 untuk setiap subtask dalam vektor subtasks.
+// Mencetak nomor dan nama subtask.
 void displaySubtasks(Task *task, int level = 0) {
     if (task->subtasks.empty()) {
         cout << "Tidak ada subtask untuk task ini." << endl;
@@ -524,6 +597,22 @@ void displaySubtasks(Task *task, int level = 0) {
     }
 }
 
+
+
+
+// Memeriksa apakah vektor tasks kosong. Jika ya, mencetak pesan bahwa tidak ada task saat ini.
+// Menampilkan daftar task utama menggunakan fungsi displayMainTasks.
+// Meminta pengguna memilih nomor task yang memiliki subtask yang ingin ditandai sebagai selesai.
+// Memeriksa apakah nomor task yang dimasukkan pengguna valid.
+// Mengakses task yang dipilih menggunakan nomor task.
+// Memeriksa apakah task memiliki subtask. Jika tidak, mencetak pesan bahwa task tersebut tidak memiliki subtask.
+// Jika task memiliki subtask, menampilkan daftar subtask menggunakan fungsi displaySubtasks.
+// Meminta pengguna memilih nomor subtask yang ingin ditandai sebagai selesai.
+// Memeriksa apakah nomor subtask yang dimasukkan pengguna valid.
+// Mengakses subtask yang dipilih menggunakan nomor subtask.
+// Menetapkan status subtask tersebut sebagai DONE.
+// Memberikan konfirmasi bahwa subtask berhasil ditandai sebagai selesai.
+// Memeriksa apakah semua subtask dari task telah selesai. Jika ya, menetapkan status task tersebut sebagai DONE dan memberikan konfirmasi bahwa task juga ditandai sebagai selesai.
 void markSubtaskAsDone(vector<Task *> &tasks) {
     if(tasks.empty()){
         cout << "Belum ada task saat ini" << endl;
@@ -579,6 +668,14 @@ void markSubtaskAsDone(vector<Task *> &tasks) {
     }
 }
 
+
+
+// Menampilkan daftar subtask menggunakan fungsi displaySubtasks.
+// Meminta pengguna memilih nomor subtask yang ingin dihapus.
+// Memeriksa apakah nomor subtask yang dimasukkan pengguna valid.
+// Menghapus subtask yang dipilih menggunakan delete untuk mencegah kebocoran memori.
+// Menghapus elemen dari vektor subtasks milik task menggunakan erase.
+// Memberikan konfirmasi bahwa subtask berhasil dihapus.
 void deleteSubtask(Task *task) {
     displaySubtasks(task);
 
@@ -599,6 +696,14 @@ void deleteSubtask(Task *task) {
     cout << "Subtask berhasil dihapus." << endl;
 }
 
+
+
+// Memeriksa apakah vektor tasks kosong. Jika ya, mencetak pesan bahwa tidak ada task saat ini.
+// Menampilkan daftar task menggunakan fungsi displayMainTasks.
+// Meminta pengguna memilih nomor task yang ingin dihapus subtasknya.
+// Memeriksa apakah nomor task yang dimasukkan pengguna valid.
+// Mendapatkan pointer ke task yang dipilih.
+// Memanggil fungsi deleteSubtask untuk menghapus subtask dari task yang dipilih.
 void deleteSubtaskMenu(vector<Task *> &tasks) {
     if(tasks.empty()){
         cout << "Belum ada task saat ini" << endl;
@@ -683,7 +788,7 @@ int main()
                     }
                 }
                 if(opsi == 1){
-                    displayAllTasks(concatenateTaskLists(TodoTasks, CompletedTasks));
+                    displayTasks(concatenateTaskLists(TodoTasks, CompletedTasks));
                 }
                 else if(opsi == 2){
                     displayTasksByCategory(concatenateTaskLists(TodoTasks, CompletedTasks));
