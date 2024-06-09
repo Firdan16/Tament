@@ -174,6 +174,11 @@ void displayTasks(const vector<Task *> &tasks, int level=0)
 
 void displayMainTasks(const vector<Task *> &tasks)
 {
+    if(tasks.empty()){
+        cout << "Belum ada task saat ini" << endl;
+        return;
+    }
+
     cout << "\n";
     cout << left << setw(5) << "No"
          << left << setw(20) << "Nama"
@@ -213,35 +218,6 @@ void displayAllTasks(const vector<Task *> &tasks)
         return;
     }
     displayTasks(tasks);
-}
-
-void displayTasksByStatus(const vector<Task *> &tasks)
-{
-    if(tasks.empty()){
-        cout << "Belum ada task saat ini" << endl;
-        return;
-    }
-
-    cout << "\n";
-    cout << left << setw(5) << "No"
-        << left << setw(20) << "Nama"
-        << left << setw(30) << "Deskripsi"
-        << left << setw(10) << "Status"
-        << left << setw(15) << "Kategori"
-        << left << setw(15) << "Tanggal"
-        << left << setw(20) << "Dependencies" << endl;
-    cout << string(105, '=') << endl;
-
-    int index = 1;
-    for (const Task *task : tasks)
-    {
-        cout << left << setw(5) << index++
-             << left << setw(20) << task->nama
-             << left << setw(30) << task->deskripsi
-             << left << setw(10) << statusToString(task->status)
-             << left << setw(15) << kategoriToString(task->kategori)
-             << left << setw(15) << task->tanggal;
-    }
 }
 
 vector<Task *> createDependency(const vector<Task *> &tasksList)
@@ -695,7 +671,7 @@ int main()
                     cout << "1. Tampilkan Semua Task" << endl;
                     cout << "2. Tampilkan Task Berdasarkan Kategori" << endl;
                     cout << "3. Tampilkan Todo Task" << endl;
-                    cout << "4. Tampilkan Semua Task Selesai" << endl;
+                    cout << "4. Tampilkan Task Selesai" << endl;
                     cout << "Pilih opsi: ";
                     cin >> opsi;
                     cin.ignore();
@@ -713,10 +689,10 @@ int main()
                     displayTasksByCategory(concatenateTaskLists(TodoTasks, CompletedTasks));
                 }
                 else if(opsi == 3){
-                    displayTasksByStatus(TodoTasks);
+                    displayMainTasks(TodoTasks);
                 }
                 else if(opsi == 4){
-                    displayTasksByStatus(CompletedTasks);
+                    displayMainTasks(CompletedTasks);
                 }
                 break;
             case 3:
