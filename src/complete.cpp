@@ -603,9 +603,11 @@ void displaySubtasks(Task *task, int level = 0) {
         return;
     }
 
-    cout << "Subtasks dari task '" << task->nama << "':" << endl;
+    cout << "Todo Subtasks dari task '" << task->nama << "':" << endl;
     for (size_t i = 0; i < task->subtasks.size(); ++i) {
-        cout << i + 1 << ". " << task->subtasks[i]->nama << endl;
+        if(task->subtasks[i]->status == TODO){
+            cout << i + 1 << ". " << task->subtasks[i]->nama << endl;
+        }
     }
 }
 
