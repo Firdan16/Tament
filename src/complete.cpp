@@ -41,11 +41,12 @@ struct Task
     string deskripsi;
     Status status;
     Kategori kategori;
-    vector<Task *> subtasks;
+    string tanggal;  // Tanggal dibuat
+    string deadline; // Deadline
     vector<Task *> dependency;
-    string tanggal;
+    vector<Task *> subtasks;
 
-    Task(string n, string d, Status s, Kategori k, string t) : nama(n), deskripsi(d), status(s), kategori(k), tanggal(t) {}
+    Task(string n, string d, Status s, Kategori k, string t, string dl) : nama(n), deskripsi(d), status(s), kategori(k), tanggal(t), deadline(dl) {}
 };
 
 vector<Task *> TodoTasks;
@@ -90,13 +91,21 @@ string kategoriToString(Kategori k)
 }
 
 // Mengembalikan string yang berisi tanggal hari ini dalam format "YYYY-MM-DD".
-string getTanggalHariIni()
-{
-    time_t t = time(0);
-    tm *now = localtime(&t);
-    char buffer[11];
-    strftime(buffer, 11, "%Y-%m-%d", now);
-    return string(buffer);
+string getTanggalHariIni() {
+    // Fungsi ini mengembalikan tanggal hari ini dalam format DD-MM-YY
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+
+    int day = ltm->tm_mday;
+    int month = 1 + ltm->tm_mon;
+    int year = 1900 + ltm->tm_year;
+
+    stringstream ss;
+    ss << setw(2) << setfill('0') << day << "-"
+       << setw(2) << setfill('0') << month << "-"
+       << year % 100; // Mengambil dua digit terakhir tahun
+
+    return ss.str();
 }
 
 // Meminta pengguna untuk memilih kategori (WORK, PERSONAL, atau OTHER) dan mengembalikan nilai enumerasi Kategori yang sesuai.
@@ -144,12 +153,9 @@ bool containsLetters(const string &str)
 // Kemudian, fungsi akan memeriksa apakah tugas tersebut memiliki subtask atau tidak.
 // Jika memiliki subtask, fungsi akan memanggil dirinya sendiri (rekursi) untuk menampilkan subtask dengan tingkat indentasi yang lebih dalam (level + 1).
 // Proses ini akan terus berlanjut hingga semua subtask dari setiap tugas ditampilkan.
-void displayTasks(const vector<Task *> &tasks, int level = 0)
-{
-    ;
+void displayTasks(const vector<Task *> &tasks, int level=0) {
     string indent(level * 4, ' ');
-    if (level == 0)
-    {
+    if(level==0){
         cout << "\n";
         cout << left << setw(5) << "No"
              << left << setw(20) << "Nama"
@@ -157,32 +163,30 @@ void displayTasks(const vector<Task *> &tasks, int level = 0)
              << left << setw(10) << "Status"
              << left << setw(15) << "Kategori"
              << left << setw(15) << "Tanggal"
+             << left << setw(15) << "Deadline"
              << left << setw(20) << "Dependencies" << endl;
-        cout << string(105, '=') << endl;
+        cout << string(135, '=') << endl;
     }
 
     int index = 1;
-    for (const Task *task : tasks)
-    {
+    for (const Task *task : tasks) {
         cout << indent << left << setw(5) << index++
              << left << setw(20) << task->nama
              << left << setw(30) << task->deskripsi
              << left << setw(10) << statusToString(task->status)
              << left << setw(15) << kategoriToString(task->kategori)
-             << left << setw(15) << task->tanggal;
+             << left << setw(15) << task->tanggal
+             << left << setw(15) << task->deadline;
 
-        if (!task->dependency.empty())
-        {
+        if (!task->dependency.empty()) {
             cout << left << setw(20);
-            for (const Task *dep : task->dependency)
-            {
+            for (const Task *dep : task->dependency) {
                 cout << dep->nama << " ";
             }
         }
         cout << endl;
 
-        if (!task->subtasks.empty())
-        {
+        if (!task->subtasks.empty()) {
             displayTasks(task->subtasks, level + 1);
         }
     }
@@ -306,28 +310,24 @@ vector<Task *> createDependency(const vector<Task *> &tasksList)
 // Menentukan dependency task dengan memanggil fungsi createDependency untuk mendapatkan daftar dependency dari TodoTasks.
 // Menambahkan task baru ke dalam TodoTasks.
 // Mengembalikan pointer ke task yang baru dibuat.
-Task *createTask()
-{
-    string nama, deskripsi, tanggal;
+Task *createTask() {
+    string nama, deskripsi, deadline;
 
     cout << "\n========  MEMBUAT TASK  ========\n";
     cout << "Masukkan Nama Task: ";
     getline(cin, nama);
     cout << "Masukkan Deskripsi Task: ";
     getline(cin, deskripsi);
+    cout << "Masukkan Deadline Task (DD-MM-YY): ";
+    getline(cin, deadline);
 
-    tanggal = getTanggalHariIni();
+    string tanggal = getTanggalHariIni();
     Status status = TODO;
     Kategori kategori = inputKategori();
 
-    // Clear input state
-    cin.clear();
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-    Task *newTask = new Task(nama, deskripsi, status, kategori, tanggal);
+    Task *newTask = new Task(nama, deskripsi, status, kategori, tanggal, deadline);
     newTask->dependency = createDependency(TodoTasks);
 
-    ;
     TodoTasks.push_back(newTask);
     cout << "Task berhasil dibuat!" << endl;
     return newTask;
@@ -338,22 +338,21 @@ Task *createTask()
 // Menetapkan status subtask sebagai TODO dan kategori subtask sebagai WORK.
 // Membuat objek Task baru untuk subtask dengan informasi yang dimasukkan pengguna.
 // Mengembalikan pointer ke subtask yang baru dibuat.
-Task *createSubtask()
-{
-    string nama, deskripsi, tanggal;
+Task *createSubtask() {
+    string nama, deskripsi, deadline;
 
     cout << "Masukkan Nama subtask: ";
     getline(cin, nama);
-
     cout << "Masukkan Deskripsi subtask: ";
     getline(cin, deskripsi);
+    cout << "Masukkan Deadline subtask (DD-MM-YY): ";
+    getline(cin, deadline);
 
-    tanggal = getTanggalHariIni();
+    string tanggal = getTanggalHariIni();
     Status status = TODO;
     Kategori kategori = WORK;
 
-    Task *newTask = new Task(nama, deskripsi, status, kategori, tanggal);
-
+    Task *newTask = new Task(nama, deskripsi, status, kategori, tanggal, deadline);
     return newTask;
 }
 
