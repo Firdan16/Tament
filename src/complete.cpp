@@ -22,15 +22,6 @@ void banner()
     cout << "\n";
 }
 
-void clearScreen()
-{
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
-}
-
 enum Status
 {
     TODO,
@@ -155,7 +146,7 @@ bool containsLetters(const string &str)
 // Proses ini akan terus berlanjut hingga semua subtask dari setiap tugas ditampilkan.
 void displayTasks(const vector<Task *> &tasks, int level = 0)
 {
-    clearScreen();
+    ;
     string indent(level * 4, ' ');
     if (level == 0)
     {
@@ -202,7 +193,7 @@ void displayTasks(const vector<Task *> &tasks, int level = 0)
 // Fungsi ini tidak menampilkan subtask dari setiap tugas utama, hanya informasi dasar tentang tugas utama itu sendiri.
 void displayMainTasks(const vector<Task *> &tasks)
 {
-    clearScreen();
+    ;
     if (tasks.empty())
     {
         cout << "Belum ada task saat ini" << endl;
@@ -336,7 +327,7 @@ Task *createTask()
     Task *newTask = new Task(nama, deskripsi, status, kategori, tanggal);
     newTask->dependency = createDependency(TodoTasks);
 
-    clearScreen();
+    ;
     TodoTasks.push_back(newTask);
     cout << "Task berhasil dibuat!" << endl;
     return newTask;
@@ -468,7 +459,7 @@ void markAllSubtaskDone(Task *task)
 // Menambahkan task yang selesai ke dalam vektor completedTasks.
 void markFirstQueueAsDone(vector<Task *> &TodoTasks, vector<Task *> &completedTasks)
 {
-    clearScreen();
+    ;
     if (TodoTasks.empty())
     {
         cout << "Belum ada task saat ini" << endl;
@@ -529,7 +520,7 @@ void markAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks)
     }
 
     Task *task = tasks[taskNumber - 1];
-    clearScreen();
+    ;
     if (!canBeMarkedAsDone(task))
     {
         cout << "Task tidak dapat ditandai sebagai selesai karena ada dependensi yang belum selesai." << endl;
@@ -557,7 +548,7 @@ void deleteTask(vector<Task *> &todoTasks, vector<Task *> &completedTasks)
 
     if (allTasks.empty())
     {
-        clearScreen();
+        ;
         cout << "Belum ada task saat ini" << endl;
         return;
     }
@@ -584,8 +575,7 @@ void deleteTask(vector<Task *> &todoTasks, vector<Task *> &completedTasks)
     else
     {
         completedTasks.erase(completedTasks.begin() + (nomorTask - todoTasks.size() - 1));
-    }
-    clearScreen();
+    };
     cout << "Task berhasil dihapus." << endl;
 }
 
@@ -594,10 +584,10 @@ void deleteTask(vector<Task *> &todoTasks, vector<Task *> &completedTasks)
 // Memberikan konfirmasi bahwa task terakhir berhasil dihapus.
 void deleteLastTask(vector<Task *> &tasks)
 {
-    clearScreen();
+    ;
     if (tasks.empty())
     {
-        clearScreen();
+        ;
         cout << "Tidak ada Todo task yang bisa dihapus." << endl;
         return;
     }
@@ -613,16 +603,15 @@ void deleteLastTask(vector<Task *> &tasks)
 // Mencetak nomor dan nama subtask.
 void displaySubtasks(Task *task, vector<int> &todoSubtaskIndices, int level = 0)
 {
-    clearScreen();
+    ;
     todoSubtaskIndices.clear();
 
     if (task->subtasks.empty())
     {
-        clearScreen();
+        ;
         cout << "Tidak ada subtask untuk task ini." << endl;
         return;
-    }
-    clearScreen();
+    };
     cout << "Todo Subtasks dari task '" << task->nama << "':" << endl;
     for (size_t i = 0; i < task->subtasks.size(); ++i)
     {
@@ -768,12 +757,12 @@ void deleteSubtask(Task *task)
 // Memanggil fungsi deleteSubtask untuk menghapus subtask dari task yang dipilih.
 void deleteSubtaskMenu(vector<Task *> &todoTasks, vector<Task *> &completedTasks)
 {
-    clearScreen();
+    ;
     vector<Task *> allTasks = concatenateTaskLists(todoTasks, completedTasks);
 
     if (allTasks.empty())
     {
-        clearScreen();
+        ;
         cout << "Belum ada task saat ini" << endl;
         return;
     }
@@ -794,11 +783,44 @@ void deleteSubtaskMenu(vector<Task *> &todoTasks, vector<Task *> &completedTasks
     deleteSubtask(task);
 }
 
+bool login()
+{
+    const string username = "admin";
+    const string password = "password";
+    string inputUsername;
+    string inputPassword;
+    cout << "Masukkan Username: ";
+    cin >> inputUsername;
+    cout << "Masukkan Password: ";
+    cin >> inputPassword;
+    if (inputUsername == username && inputPassword == password)
+    {
+        cout << "Berhasil Login" << endl;
+        return true;
+    }
+    cout << "Gagal Login" << endl;
+    return false;
+}
+
 int main()
 {
     while (true)
     {
-        banner();
+        bool loginSuccess = login();
+        if (loginSuccess)
+        {
+            break;
+        }
+        else
+        {
+            continue;
+        }
+    }
+
+    banner();
+    while (true)
+    {
+
         TodoTasks = TodoTasks;
         cout << "\n========  MENU UTAMA  ========\n";
         cout << "1. Tambah Task" << endl;
