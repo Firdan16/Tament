@@ -666,7 +666,7 @@ void markSubtaskAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks) {
     if (todoSubtaskIndices.empty()) {
         return;
     }
-    
+
     cout << "Pilih nomor subtask yang ingin ditandai selesai: ";
     int subtaskNumber;
     cin >> subtaskNumber;
@@ -689,6 +689,8 @@ void markSubtaskAsDone(vector<Task *> &tasks, vector<Task *> &completedTasks) {
             break;
         }
     }
+
+    allSubtasksDone = canBeMarkedAsDone(task);
 
     if (allSubtasksDone) {
         task->status = DONE;
